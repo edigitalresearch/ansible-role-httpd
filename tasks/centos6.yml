@@ -1,0 +1,22 @@
+- name: Install mod_rpaf-fork for CentOS 6
+  yum:
+    name: mod_rpaf-fork
+    state: present
+- name: Enable Apache Proxy for CentOS 6
+  blockinfile:
+    path: "rpaf.conf"
+    dest: "/etc/httpd/conf.d/rpaf.conf"
+    owner: "root"
+    group: "root"
+    mode: 0644
+    block: |
+      LoadModule rpaf_module modules/mod_rpaf-2.0.so
+      RPAFenable On
+      RPAFproxy_ips 192.168. 10. 172.16.
+      RPAFheader X-Forwarded-For
+      RPAFsethostname Off
+      RPAFsethttps Off
+      RPAFsetport Off
+    create: yes
+  notify:
+    - reload-httpd

@@ -1,0 +1,39 @@
+---
+  httpd:
+    packages:
+      - httpd
+      - mod_fcgid
+    files:
+        - path: /etc/sysconfig/httpd
+          owner: root
+          group: root
+          mode: "0644"
+          content: |
+            HTTPD=/usr/sbin/httpd.worker
+            OPTIONS="-D MOD_FASTCGI"
+    directories:
+      - path: /var/www/httpd/access-logs
+        state: directory
+        mode: "0755"
+        owner: apache
+        group: apache
+      - path: /var/log/httpd/error-logs
+        state: directory
+        mode: "0755"
+        owner: apache
+        group: apache
+      - path: /var/www/vhosts
+        state: directory
+        mode: "0755"
+        owner: apache
+        group: apache
+      - path: /etc/httpd/sites-available
+        state: directory
+        mode: "0755"
+        owner: apache
+        group: apache
+      - path: /etc/httpd/sites-enabled
+        state: directory
+        mode: "0755"
+        owner: apache
+        group: apache

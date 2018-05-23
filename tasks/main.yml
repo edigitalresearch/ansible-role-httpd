@@ -1,0 +1,62 @@
+- name: HTTPD | Include CentOS 6 Proxy
+  include_tasks: centos6.yml
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == '6'
+
+- name: HTTPD | Install packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ httpd.packages }}"
+
+- name: HTTPD | Create Webserver Directories
+  file:
+    path: "{{ item.path }}"
+    state: "{{ item.state }}"
+    mode: "{{ item.mode }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  with_items: "{{ httpd.directories }}"
+
+- name: HTTPD | Create configuration files
+  blockinfile:
+    path: "{{ item.path }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    block: "{{ item.content }}"
+    create: yes
+  with_items: "{{ httpd.files }}"
+
+- name: HTTPD | Configure sites-*
+  lineinfile:
+    insertafter: EOF
+    line: IncludeOptional sites-enabled/*.conf
+    path: /etc/httpd/conf/httpd.conf
+
+- name: HTTPD | Create site directories
+  file:
+    path: "/var/www/vhosts/{{ item.domain }}"
+    state: directory
+    owner: apache
+    group: apache
+    mode: 0755
+  with_items: "{{ httpd.vhosts }}"
+
+- name: HTTPD | Create vhost files
+  blockinfile:
+    path: "/etc/httpd/sites-available/{{ item.domain }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+    block: "{{ item.content }}"
+    create: yes
+  with_items: "{{ httpd.vhosts }}"
+
+- name: HTTPD | Enable Vhosts
+  file:
+    src: "/etc/httpd/sites-available/{{ item.domain }}.conf"
+    dest: "/etc/httpd/sites-enabled/{{ item.domain }}.conf"
+    state: link
+  with_items: "{{ httpd.vhosts }}"
+  notify:
+    - reload-httpd

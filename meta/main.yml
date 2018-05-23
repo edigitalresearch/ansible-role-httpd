@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  author: Dylan Scott
+  description: Ansible Role for HTTPD
+  company: Maru EDR
+  license: MIT
+  min_ansible_version: 2.5.3
+  platforms:
+  - name: CentOS
+    versions:
+    - 7
+    - 6
+  galaxy_tags:
+    - maru
+    - installer
+    - httpd
